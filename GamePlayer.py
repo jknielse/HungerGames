@@ -22,9 +22,10 @@ class GamePlayer:
     	clonedPlayer.player = player.Clone()
     	return clonedPlayer
 
-    def print(self):
+    def Print(self):
         print   player.name +":" + \
-                "\n\tFood: " + food + \
-                "\n\tTimes Hunted: " + timesHunted + \
-                "\n\tTimes Slacked " + timesSlacked + \
-                "\n\tReputation" + GetReputation()
+                "\n\tFood: " + str(food) + \
+                "\n\tTimes Hunted: " + str(timesHunted) + \
+                "\n\tTimes Slacked " + str(timesSlacked) + \
+                "\n\tReputation" + str(GetReputation()) + \
+                "\n"
