@@ -15,11 +15,12 @@ def PrintGameRoundPlayers(gameRound, players) :
 def PrintGameRoundList(gameRoundList) :
 	roundCounter = 1
 	for gameRound in gameRoundList :
-		print "***** NEW ROUND *****"
-		print "Round " + str(roundCounter)
+		roundStartString = "************* ROUND " + str(roundCounter) + " *************"
+		print roundStartString
 		PrintGameRound(gameRound)
-		print "***** END ROUND *****"
 		roundCounter += 1
+		print "*" * len(roundStartString)
+		print "\n\n\n\n"
 
 def PrintGameRoundListPlayers(gameRoundList, players) :
 	for gameRound in gameRoundList :
