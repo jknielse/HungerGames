@@ -5,7 +5,7 @@ class GamePlayer:
         self.timesSlacked = 0
         self.player = None
 
-    def GetReputation(self, other):
+    def GetReputation(self):
     	if ( 0 == self.timesHunted and 0 == self.timesSlacked ):
     		return 0
     	else:

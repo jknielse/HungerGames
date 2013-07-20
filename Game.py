@@ -1,5 +1,7 @@
+from __future__ import division, print_function
 import random
 from GamePlayer import GamePlayer
+from GameRound import GameRound
 
 # I have no idea what these numbers should be yet
 MIN_ROUNDS = 300
@@ -25,7 +27,7 @@ def add(x,y):
     
 class Game(object):    
     def __init__(self, players, verbose=True):
-        self.max_rounds = MIN_ROUNDS + int(random.expovariate(1/(AVERAGE_ROUNDS-MIN_ROUNDS)))
+        self.max_rounds = MIN_ROUNDS + int(random.expovariate(1/(AVERAGE_ROUNDS - MIN_ROUNDS)))
         self.round = 0
         self.gameRoundList = []
 
@@ -36,8 +38,9 @@ class Game(object):
         	newGamePlayer = GamePlayer()
         	#Start the players off with 300*(P - 1) food
         	newGamePlayer.food = (len(players) - 1) * 300
+        	newGamePlayer.player = eachPlayer
 
-        	self.gamePlayerList += newGamePlayer
+        	self.gamePlayerList += [newGamePlayer]
     
     @property
     def P(self):
@@ -56,17 +59,17 @@ class Game(object):
         self.round += 1
         m = self.calculate_m()
         
-        shuffledPlayerList = self.gamePlayerList.copy()
+        shuffledPlayerList = list(self.gamePlayerList)
         random.shuffle(shuffledPlayerList)
 
         resultList = []
 
         for eachGamePlayer in shuffledPlayerList:
-        	otherGamePlayers = shuffledPlayerList.copy()
+        	otherGamePlayers = list(shuffledPlayerList)
         	otherGamePlayers.remove(eachGamePlayer)
 
         	resultList += eachGamePlayer.player.hunt_choices(self.round, \
-        													 eachGamePlayer.food,i \
+        													 eachGamePlayer.food, \
         													 eachGamePlayer.GetReputation(), \
         													 m, \
         													 [player.GetReputation() for player in otherGamePlayers])
@@ -74,6 +77,12 @@ class Game(object):
         #Now that we have the results, we need to construct the earnings lists for each player.
         #To do this, we're going to populate a P*P matrix with the results of their interactions:
         earningsMatrix = []
+
+        #So that we don't run into out of range exceptions, I'm just going to pre-set all of the values in earningsMatrix:
+        for oneplayer in range(len(shuffledPlayerList)):
+        	earningsMatrix.append([])
+        	for otherplayer in range(len(shuffledPlayerList)):
+        		earningsMatrix[oneplayer].append('')
 
         currentPlayerIndex = 0
         for eachGamePlayer in shuffledPlayerList:
@@ -83,8 +92,8 @@ class Game(object):
         			resultIndex = rivalPlayerIndex
         			if rivalPlayerIndex > currentPlayerIndex:
         				resultIndex -= 1
-        			earningsMatrix[currentPlayerIndex][rivalPlayerIndex] += resultList[currentPlayerIndex][resultIndex]
-        			earningsMatrix[rivalPlayerIndex][currentPlayerIndex] += resultList[currentPlayerIndex][resultIndex]
+        			earningsMatrix[currentPlayerIndex][rivalPlayerIndex] += '' #resultList[currentPlayerIndex][resultIndex]
+        			earningsMatrix[rivalPlayerIndex][currentPlayerIndex] += '' #resultList[currentPlayerIndex][resultIndex]
         		rivalPlayerIndex += 1
         	currentPlayerIndex += 1
 
@@ -109,7 +118,7 @@ class Game(object):
         	eachGamePlayer.food += foodExpendedByThisPlayer
 
         	eachGamePlayer.player.hunt_outcomes(huntOutcomes) 
-
+        	currentPlayerIndex += 1
         #The /6 is because people produce 6 food every hunt. Hence, the total number of hunters must be the food produced
         #divided by 6.
         totalNumberOfHunters = totalFoodProduced/6
@@ -125,7 +134,7 @@ class Game(object):
         #The penultimate step in this procedure is to remove players that have died:
         for eachGamePlayer in shuffledPlayerList:
         	if eachGamePlayer.IsDead():
-        		shuffledPlayerList.remove(eachGamePlayer)
+        		self.gamePlayerList.remove(eachGamePlayer)
 
         #Finally, we need to construct a GameRound object that we will return to the caller, and
         #then determine if the game has ended:
@@ -133,11 +142,11 @@ class Game(object):
         gameRound = GameRound()
         gameRound.m = m
         gameRound.gamePlayerList = self.gamePlayerList
-        self.gameRoundList += gameRound
+        self.gameRoundList += [gameRound]
 
         #If everyone except one person is dead, or if we've hit the last round, then
         #the game is over.
-        if (len(gamePlayerList) <= 1) or (self.round >= self.max_rounds):
+        if (len(self.gamePlayerList) <= 1) or (self.round >= self.max_rounds):
         	return False
 
         self.round += 1
@@ -145,8 +154,8 @@ class Game(object):
 
     def play_game(self):
         
-        while : self.play_round()
+        while self.play_round():
         	pass
 
-        return gameRoundList
+        return self.gameRoundList
         
