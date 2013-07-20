@@ -3,7 +3,7 @@ class GamePlayer:
         self.food = 0
         self.timesHunted = 0
         self.timesSlacked = 0
-        self.playerLogic = None
+        self.player = None
 
     def GetReputation(self, other):
     	if ( 0 == timesHunted and 0 == timesSlacked ):
