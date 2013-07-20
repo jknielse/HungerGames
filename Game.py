@@ -1,5 +1,7 @@
 from __future__ import division, print_function
 import random
+from copy import copy
+from copy import deepcopy
 from GamePlayer import GamePlayer
 from GameRound import GameRound
 
@@ -68,11 +70,19 @@ class Game(object):
         	otherGamePlayers = list(shuffledPlayerList)
         	otherGamePlayers.remove(eachGamePlayer)
 
-        	resultList += eachGamePlayer.player.hunt_choices(self.round, \
-        													 eachGamePlayer.food, \
-        													 eachGamePlayer.GetReputation(), \
-        													 m, \
-        													 [player.GetReputation() for player in otherGamePlayers])
+        	result = eachGamePlayer.player.hunt_choices( self.round, \
+														 eachGamePlayer.food, \
+														 eachGamePlayer.GetReputation(), \
+														 m, \
+														 [player.GetReputation() for player in otherGamePlayers])
+        	resultList += [result]
+        	#It may be tempting to update the game player's reputation right now, but that would be visable to the other players,
+        	#so we must do this *after* the hunt_choices stage
+
+        for eachGamePlayerIndex in range(len(shuffledPlayerList)) :
+        	shuffledPlayerList[eachGamePlayerIndex].timesHunted += resultList[eachGamePlayerIndex].count('h')
+        	shuffledPlayerList[eachGamePlayerIndex].timesSlacked += resultList[eachGamePlayerIndex].count('s')
+
 
         #Now that we have the results, we need to construct the earnings lists for each player.
         #To do this, we're going to populate a P*P matrix with the results of their interactions:
@@ -141,7 +151,7 @@ class Game(object):
 
         gameRound = GameRound()
         gameRound.m = m
-        gameRound.gamePlayerList = self.gamePlayerList
+        gameRound.gamePlayerList = deepcopy(self.gamePlayerList)
         self.gameRoundList += [gameRound]
 
         #If everyone except one person is dead, or if we've hit the last round, then

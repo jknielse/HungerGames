@@ -1,8 +1,9 @@
+from copy import copy
 class GamePlayer:
     def __init__(self):
-        self.food = 0
-        self.timesHunted = 0
-        self.timesSlacked = 0
+        self.food = 0.0
+        self.timesHunted = 0.0
+        self.timesSlacked = 0.0
         self.player = None
 
     def GetReputation(self):
@@ -14,18 +15,10 @@ class GamePlayer:
     def IsDead(self):
     	return (self.food <= 0)
 
-    def Clone(self):
-    	clonedGamePlayer = GamePlayer()
-    	clonedGamePlayer.food = self.food
-    	clonedGamePlayer.timesHunted = self.timesHunted
-    	clonedGamePlayer.timesSlacked = self.timesSlacked
-    	clonedGamePlayer.player = self.player.Clone()
-    	return clonedGamePlayer
-
     def Print(self):
         print   self.player.name +":" + \
-                "\n\tFood: " + str(self.food) + \
-                "\n\tTimes Hunted: " + str(self.timesHunted) + \
-                "\n\tTimes Slacked " + str(self.timesSlacked) + \
-                "\n\tReputation" + str(self.GetReputation()) + \
+                "\n\tFood:          " + str(self.food) + \
+                "\n\tTimes Hunted:  " + str(self.timesHunted) + \
+                "\n\tTimes Slacked: " + str(self.timesSlacked) + \
+                "\n\tReputation:    " + str(self.GetReputation()) + \
                 "\n"

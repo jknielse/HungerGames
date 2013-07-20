@@ -13,10 +13,13 @@ def PrintGameRoundPlayers(gameRound, players) :
 			gamePlayer.Print()
 
 def PrintGameRoundList(gameRoundList) :
+	roundCounter = 1
 	for gameRound in gameRoundList :
 		print "***** NEW ROUND *****"
+		print "Round " + str(roundCounter)
 		PrintGameRound(gameRound)
 		print "***** END ROUND *****"
+		roundCounter += 1
 
 def PrintGameRoundListPlayers(gameRoundList, players) :
 	for gameRound in gameRoundList :
