@@ -1,9 +1,51 @@
-def printM(gameRound):
-	print "Value of 'm' for this round: " gameRound.m
+def PrintM(gameRound) :
+	print "Value of 'm' for this round: " + str(gameRound.m)
 
-def printGameRound(gameRound):
-	gameRound.printM()
+def PrintGameRound(gameRound) :
+	gameRound.PrintM()
 	for gamePlayer in gameRound.gamePlayerList :
-		gamePlayer.print()
+		gamePlayer.Print()
 
-def printGameRoundPlayer(gameRound, player):
+def PrintGameRoundPlayers(gameRound, players) :
+	gameRound.PrintM()
+	for gamePlayer in gameRound.gamePlayerList :
+		if gamePlayer.player in players:
+			gamePlayer.Print()
+
+def PrintGameRoundList(gameRoundList) :
+	for gameRound in gameRoundList :
+		print "***** NEW ROUND *****"
+		PrintGameRound(gameRound)
+		print "***** END ROUND *****"
+
+def PrintGameRoundListPlayers(gameRoundList, players) :
+	for gameRound in gameRoundList :
+		print "***** NEW ROUND *****"
+		PrintGameRoundPlayers(gameRound, players)
+		print "***** END ROUND *****"
+
+def PrintPlayerInfo(gameRoundList, player, roundPrintPeriod = 1) :
+	playerIndex = None
+	index = 0
+	for gamePlayer in gameRoundList[0].gamePlayerList :
+		if gamePlayer.player.name == player.name :
+			playerIndex = index
+			break
+		index += 1
+
+	playerFood = gameRoundList[0].gamePlayerList[playerIndex].food
+
+	roundNum = 0
+	print "FOOD\tREP\n"
+	for gameRound in gameRoundList :
+		if 0 == roundPrintPeriod or roundNum % roundPrintPeriod == 0 :
+			gamePlayer = gameRound.gamePlayerList[playerIndex]
+
+			foodDiff = gamePlayer.food - playerFood
+			foodDiffString = (("+" + str(foodDiff)) if (foodDiff > 0) else str(foodDiff))
+
+			print foodDiffString + "\t" + str(gamePlayer.getReputation()) + "\n"
+
+			playerFood = gamePlayer.food
+		
+		roundNum += 1
