@@ -1,12 +1,15 @@
 class GamePlayer:
     def __init__(self):
-        self.food = None
-        self.timesHunted = None
-        self.timesSlacked = None
+        self.food = 0
+        self.timesHunted = 0
+        self.timesSlacked = 0
         self.playerLogic = None
 
     def GetReputation(self, other):
-        return timesHunted/(timesHunted + timesSlacked)
+    	if ( 0 == timesHunted and 0 == timesSlacked ):
+    		return 0
+    	else:
+    		return timesHunted/(timesHunted + timesSlacked)
 
     def IsDead(self):
     	return (food <= 0)
