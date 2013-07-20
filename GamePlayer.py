@@ -19,5 +19,12 @@ class GamePlayer:
     	clonedPlayer.food = food
     	clonedPlayer.timesHunted = timesHunted
     	clonedPlayer.timesSlacked = timesSlacked
-    	clonedPlayer.playerLogic = playerLogic.Clone()
+    	clonedPlayer.player = player.Clone()
     	return clonedPlayer
+
+    def print(self):
+        print   player.name +":" + \
+                "\n\tFood: " + food + \
+                "\n\tTimes Hunted: " + timesHunted + \
+                "\n\tTimes Slacked " + timesSlacked + \
+                "\n\tReputation" + GetReputation()
