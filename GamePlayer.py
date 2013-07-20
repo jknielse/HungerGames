@@ -6,26 +6,26 @@ class GamePlayer:
         self.player = None
 
     def GetReputation(self, other):
-    	if ( 0 == timesHunted and 0 == timesSlacked ):
+    	if ( 0 == self.timesHunted and 0 == self.timesSlacked ):
     		return 0
     	else:
-    		return timesHunted/(timesHunted + timesSlacked)
+    		return self.timesHunted/(self.timesHunted + self.timesSlacked)
 
     def IsDead(self):
-    	return (food <= 0)
+    	return (self.food <= 0)
 
     def Clone(self):
-    	clonedPlayer = GamePlayer()
-    	clonedPlayer.food = food
-    	clonedPlayer.timesHunted = timesHunted
-    	clonedPlayer.timesSlacked = timesSlacked
-    	clonedPlayer.player = player.Clone()
-    	return clonedPlayer
+    	clonedGamePlayer = GamePlayer()
+    	clonedGamePlayer.food = self.food
+    	clonedGamePlayer.timesHunted = self.timesHunted
+    	clonedGamePlayer.timesSlacked = self.timesSlacked
+    	clonedGamePlayer.player = self.player.Clone()
+    	return clonedGamePlayer
 
     def Print(self):
-        print   player.name +":" + \
-                "\n\tFood: " + str(food) + \
-                "\n\tTimes Hunted: " + str(timesHunted) + \
-                "\n\tTimes Slacked " + str(timesSlacked) + \
-                "\n\tReputation" + str(GetReputation()) + \
+        print   self.player.name +":" + \
+                "\n\tFood: " + str(self.food) + \
+                "\n\tTimes Hunted: " + str(self.timesHunted) + \
+                "\n\tTimes Slacked " + str(self.timesSlacked) + \
+                "\n\tReputation" + str(self.GetReputation()) + \
                 "\n"
