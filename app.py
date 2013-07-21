@@ -8,4 +8,5 @@ from Players import Pushover, Freeloader, Alternator
 if __name__ == '__main__':
     players = [Pushover(), Freeloader(), Alternator()]
     game = Game(players)
-    GamePrinter.PrintGameRoundList(game.play_game())
+    gameResults = game.play_game()
+    GamePrinter.PrintGameRoundList(gameResults)
