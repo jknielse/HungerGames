@@ -1,171 +1,197 @@
 from __future__ import division, print_function
 import random
-from copy import copy
-from copy import deepcopy
-from GamePlayer import GamePlayer
-from GameRound import GameRound
 
-# I have no idea what these numbers should be yet
-MIN_ROUNDS = 300
-AVERAGE_ROUNDS = 1000
+from Player import Player
 
-def payout(*args):
-    #Times 3 because this calculates one person's share
-    return args.count('h') * 3
+# Primary engine for the game simulation. You shouldn't need to edit
+# any of this if you're just testing strategies.
 
-def loss(huntOrSlack):
-	if huntOrSlack == 's':
-		return -2
-	elif huntOrSlack == 'h':
-		return -6
-	else:
-		raise Exception('huntOrSlack was not one of \'s\' or \'h\'\nDo you even lift bro?')
+def payout(s1,s2):
+    if s1 == 'h':
+        if s2 == 'h':
+            return 0
+        else:
+            return -3
+    else:
+        if s2 == 'h':
+            return 1
+        else:
+            return -2
+            
+            
+class GamePlayer(object):
+    '''
+    Wrapper class for players to keep track of food etc
+    Parent is the main game instance, so we can just ask
+    how many hunts have happened.
+    '''
+    def __init__(self, parent, player, food, hunts=0):
+        self.parent = parent
+        self.player = player
+        self.food = food
+        self.hunts = hunts
+        
+    @property
+    def rep(self):
+        return self.hunts/self.parent.hunt_opportunities if self.parent.hunt_opportunities else 0
+        
+    def __repr__(self):
+        return '{} {} {:.3f}'.format(self.player, self.food, self.rep)
 
-def add(x,y):
-	return x + y
-
-
-
+    def __str__(self):
+        return "Player {} now has {} food and a reputation of {:.3f}".format(self.player, self.food, self.rep)
+        
+            
     
-class Game(object):    
-    def __init__(self, players, verbose=True):
-        self.max_rounds = MIN_ROUNDS + int(random.expovariate(1/(AVERAGE_ROUNDS - MIN_ROUNDS)))
+class Game(object):
+    '''
+    Game(players, verbose=True, min_rounds=300, average_rounds=1000, end_early=False)
+    
+    Primary game engine for the sim. players should be a list of players
+    as defined in Player.py or bots.py. verbose determines whether the game
+    will print the result of individual rounds to the console or not.
+    
+    Per the rules, the game has a small but constant probability of ending
+    each round after min_rounds. The current defaults are completely arbitrary;
+    feel free to play with them.
+
+    End_early is an option to allow you to better test your strategy.  If specified
+    as True, the game will end if the 'Player' player is eliminated (in addition
+    to ending if any of the other game end conditions are met).
+        
+    Call game.play_game() to run the entire game at once, or game.play_round()
+    to run one round at a time.
+    
+    See app.py for a bare-minimum test game.
+    '''   
+    def __init__(self, players, verbose=True, min_rounds=300, average_rounds=1000, end_early=False):
+        self.verbose = verbose
+        assert average_rounds > min_rounds, "average_rounds must be greater than min_rounds"
+        self.max_rounds = min_rounds + int(random.expovariate(1/(average_rounds-min_rounds)))
         self.round = 0
-        self.gameRoundList = []
+        self.hunt_opportunities = 0
+        self.end_early = end_early
+        
+        start_food = 300*(len(players)-1)
+        
+        self.players = [GamePlayer(self,p,start_food) for p in players]
 
-        self.gamePlayerList = []
-        #For each player, we're going to construct a "GamePlayer" object to help us keep
-        #track of food and reputation and whatnot.
-        for eachPlayer in players:
-        	newGamePlayer = GamePlayer()
-        	#Start the players off with 300*(P - 1) food
-        	newGamePlayer.food = (len(players) - 1) * 300
-        	newGamePlayer.player = eachPlayer
+        if self.verbose:
+            print("Game parameters:\n # players: %d\n verbose: %s\n " \
+                  "min_rounds: %d\n average_rounds: %d\n " \
+                  "end_early: %s\n" % (len(players), verbose, \
+                                       min_rounds, average_rounds,
+                                       end_early))
 
-        	self.gamePlayerList += [newGamePlayer]
+    @property
+    def m_bonus(self):
+        return 2*(self.P-1)
     
     @property
     def P(self):
-        return len(self.gamePlayerList)
+        return len(self.players)
         
     def calculate_m(self):
-        try:
             return random.randrange(1, self.P*(self.P-1))
-        except ValueError:
-            # m stops existing for 2 players
-            return 3
             
         
     def play_round(self):
-        #The first step of a round is to pit every player against every other player and see how they fare
+        # Get beginning of round stats        
         self.round += 1
+        if(self.verbose):
+            print ("\nBegin Round " + str(self.round) + ":")
         m = self.calculate_m()
         
-        shuffledPlayerList = list(self.gamePlayerList)
-        random.shuffle(shuffledPlayerList)
-
-        resultList = []
-
-        for eachGamePlayer in shuffledPlayerList:
-        	otherGamePlayers = list(shuffledPlayerList)
-        	otherGamePlayers.remove(eachGamePlayer)
-
-        	result = eachGamePlayer.player.hunt_choices( self.round, \
-														 eachGamePlayer.food, \
-														 eachGamePlayer.GetReputation(), \
-														 m, \
-														 [player.GetReputation() for player in otherGamePlayers])
-        	resultList += [result]
-        	#It may be tempting to update the game player's reputation right now, but that would be visable to the other players,
-        	#so we must do this *after* the hunt_choices stage
-
-        for eachGamePlayerIndex in range(len(shuffledPlayerList)) :
-        	shuffledPlayerList[eachGamePlayerIndex].timesHunted += resultList[eachGamePlayerIndex].count('h')
-        	shuffledPlayerList[eachGamePlayerIndex].timesSlacked += resultList[eachGamePlayerIndex].count('s')
-
-
-        #Now that we have the results, we need to construct the earnings lists for each player.
-        #To do this, we're going to populate a P*P matrix with the results of their interactions:
-        earningsMatrix = []
-
-        #So that we don't run into out of range exceptions, I'm just going to pre-set all of the values in earningsMatrix:
-        for oneplayer in range(len(shuffledPlayerList)):
-        	earningsMatrix.append([])
-        	for otherplayer in range(len(shuffledPlayerList)):
-        		earningsMatrix[oneplayer].append('')
-
-        currentPlayerIndex = 0
-        for eachGamePlayer in shuffledPlayerList:
-        	rivalPlayerIndex = 0
-        	for eachRivalPlayer in shuffledPlayerList:
-        		if eachGamePlayer != eachRivalPlayer:
-        			resultIndex = rivalPlayerIndex
-        			if rivalPlayerIndex > currentPlayerIndex:
-        				resultIndex -= 1
-        			earningsMatrix[currentPlayerIndex][rivalPlayerIndex] += '' #resultList[currentPlayerIndex][resultIndex]
-        			earningsMatrix[rivalPlayerIndex][currentPlayerIndex] += '' #resultList[currentPlayerIndex][resultIndex]
-        		rivalPlayerIndex += 1
-        	currentPlayerIndex += 1
-
-        #Now that the results have been put into an earning matrix, we're going to map that into earning lists, and pass those
-        #lists to the player objects (i.e. figure out what we need to pass to hunt_outcomes())
-        #While we're at it, we're gonna keep track of the number of people who hunted in order to determine the award food
-        #in the next step.
-        totalFoodProduced = 0
-
-        currentPlayerIndex = 0
-        for eachGamePlayer in shuffledPlayerList:
-        	del earningsMatrix[currentPlayerIndex][currentPlayerIndex]
-        	huntOutcomes = map(payout,earningsMatrix[currentPlayerIndex])
-        	foodProducedThisRound = reduce(add, huntOutcomes)
-        	totalFoodProduced += foodProducedThisRound
-        	#Adds this player's share of the food produced from the hunt
-        	eachGamePlayer.food += totalFoodProduced
-        	#This will return a negative number btw:
-        	foodExpendedByThisPlayer = reduce(add , map(loss, resultList[currentPlayerIndex]))
-
-        	#Removes the food expended by this player
-        	eachGamePlayer.food += foodExpendedByThisPlayer
-
-        	eachGamePlayer.player.hunt_outcomes(huntOutcomes) 
-        	currentPlayerIndex += 1
-        #The /6 is because people produce 6 food every hunt. Hence, the total number of hunters must be the food produced
-        #divided by 6.
-        totalNumberOfHunters = totalFoodProduced/6
-
-        foodAward = 0
-        if totalNumberOfHunters >= m:
-        	foodAward = 2 * (self.P - 1)
-
-        for eachGamePlayer in shuffledPlayerList:
-        	eachGamePlayer.food += foodAward
-        	eachGamePlayer.player.round_end(foodAward,m,totalNumberOfHunters)
-
-        #The penultimate step in this procedure is to remove players that have died:
-        for eachGamePlayer in shuffledPlayerList:
-        	if eachGamePlayer.IsDead():
-        		self.gamePlayerList.remove(eachGamePlayer)
-
-        #Finally, we need to construct a GameRound object that we will return to the caller, and
-        #then determine if the game has ended:
-
-        gameRound = GameRound()
-        gameRound.m = m
-        gameRound.gamePlayerList = deepcopy(self.gamePlayerList)
-        self.gameRoundList += [gameRound]
-
-        #If everyone except one person is dead, or if we've hit the last round, then
-        #the game is over.
-        if (len(self.gamePlayerList) <= 1) or (self.round >= self.max_rounds):
-        	return False
-
-        self.round += 1
-        return True
-
-    def play_game(self):
+        # Beginning of round setup
+        random.shuffle(self.players)
+        reputations = list(player.rep for player in self.players)
         
-        while self.play_round():
-        	pass
+        # Get player strategies
+        strategies = []
+        for i,p in enumerate(self.players):
+            opp_reputations = reputations[:i]+reputations[i+1:]
+            strategy = p.player.hunt_choices(self.round, p.food, p.rep, m, opp_reputations)
 
-        return self.gameRoundList
+            strategy.insert(i,'s')
+            strategies.append(strategy)
+
+        # Perform the hunts
+        self.hunt_opportunities += self.P-1
+
+        results = [[] for j in range(self.P)]
+        for i in range(self.P):
+            for j in range(self.P):
+                if i!=j:
+                    results[i].append(payout(strategies[i][j], strategies[j][i]))
+                
+        total_hunts = sum(s.count('h') for s in strategies)
+        
+        if (self.verbose):
+            print ("There were {} hunts of {} needed for bonus".format(total_hunts, m))
+
+        if total_hunts >= m:
+            bonus = self.m_bonus
+            if (self.verbose):
+                print("Cooperation Threshold Acheived. Bonus of {} awarded to each player".format(self.m_bonus))
+        else:
+            bonus = 0
+        
+        # Award food and let players run cleanup tasks
+        for strat, result, player in zip(strategies, results, self.players):
+            food = sum(result)
+            hunts = strat.count('h')
+            
+            player.food += food+bonus
+            player.hunts += hunts
+            player.player.hunt_outcomes(result)
+            player.player.round_end(bonus, m, total_hunts)
+            
+    
+        if self.verbose:
+            newlist = sorted(self.players, key=lambda x: x.food, reverse=True)
+            for p in newlist:
+                print (p)
+                   
+        
+        if self.game_over():
+            print ("Game Completed after {} rounds".format(self.round))
+            raise StopIteration
+            
+        
+    def game_over(self):        
+        starved = [p for p in self.players if p.food <= 0]
+        quit = False
+
+        for p in starved:
+            print ("{} has starved and been eliminated in round {}".format(p.player, self.round))
+
+            if isinstance(p.player, Player) and self.end_early:
+                quit = True
+
+        self.players = [p for p in self.players if p.food > 0]
+        
+        return (self.P < 2) or (self.round > self.max_rounds) or quit
+        
+        
+    def play_game(self):
+        '''
+        Preferred way to run the game to completion
+        Written this way so that I can step through rounds one at a time
+        '''
+        print ("Playing the game to the end:")
+
+        while True:
+            try:
+                self.play_round()
+            except StopIteration:
+                if len(self.players) <= 0:
+                    print ("Everyone starved")
+                elif (len(self.players) == 1):
+                    print ("The winner is: ", self.players[0].player)
+                else:
+                    survivors = sorted(self.players, key=lambda player: player.food, reverse=True)
+                    print ("The winner is: ", survivors[0].player)
+                    print ("Multiple survivors:")
+                    print (survivors)
+                break
         
