@@ -34,10 +34,10 @@ class BasePlayer(object):
 
 
 class Player(BasePlayer):
-    '''
-    Your strategy starts here.
-    '''
-    
+    '''Player that hunts only with people with max reputation.'''
+    def __init__(self):
+        self.name = "Player"
+
     def hunt_choices(
                     self,
                     round_number,
@@ -46,9 +46,8 @@ class Player(BasePlayer):
                     m,
                     player_reputations,
                     ):
-        '''Required function defined in the rules'''
-                    
-        return ['s']*len(player_reputations)
+        threshold = current_reputation
+        return ['h' if rep >= threshold else 's' for rep in player_reputations]
         
 
     def hunt_outcomes(self, food_earnings):
