@@ -11,7 +11,7 @@ DEFAULT_VERBOSITY = True
 DEFAULT_MIN_ROUNDS = 300
 DEFAULT_AVERAGE_ROUNDS = 1000
 DEFAULT_END_EARLY = False
-DEFAULT_PLAYERS = [Player(), Pushover(), Freeloader(), Alternator(), MaxRepHunter(), Random(.2), Random(.8)] * 10
+DEFAULT_PLAYERS = ([Player(), Freeloader(), MaxRepHunter()] * 3) + ([Freeloader(), MaxRepHunter()] * 8) 
 
 # Bare minimum test game. See README.md for details.
 
