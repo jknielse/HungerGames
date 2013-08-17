@@ -141,4 +141,21 @@ class AverageHunter(BasePlayer):#3
                     ):
         avg_rep = sum(player_reputations) / float(len(player_reputations))
         return ['h' if random.random() < avg_rep else 's' for rep in player_reputations]
+
+class Player1(BasePlayer):#3
+    '''Player that tries to maintain the average reputation, but spreads its hunts randomly.'''
+    
+    def __init__(self):
+        self.name = "player1"
+
+    def hunt_choices(
+                    self,
+                    round_number,
+                    current_food,
+                    current_reputation,
+                    m,
+                    player_reputations,
+                    ):
+        threshold = current_reputation
+        return ['h' if ((rep >= threshold) and (abs(rep - 0.5) > 0.01))  else 's' for rep in player_reputations]
         

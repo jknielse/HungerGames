@@ -11,7 +11,7 @@ DEFAULT_VERBOSITY = True
 DEFAULT_MIN_ROUNDS = 300
 DEFAULT_AVERAGE_ROUNDS = 1000
 DEFAULT_END_EARLY = False
-DEFAULT_PLAYERS = ([Player()] * 10) + ([Freeloader()] * 20) + ([Alternator()] * 1) + ([MaxRepHunter()] * 20) + ([Random(0.3)] * 3) + ([Random(0.55)] * 3) + ([FairHunter()] * 2) + ([BoundedHunter(0.8,0.999)] * 14) + ([AverageHunter()] * 3) + ([Pushover()] * 1) 
+DEFAULT_PLAYERS = ([Player()] * 3) + ([Freeloader()] * 20) + ([Alternator()] * 1) + ([MaxRepHunter()] * 20) + ([Random(0.3)] * 2) + ([Random(0.96)] * 2) + ([FairHunter()] * 2) + ([BoundedHunter(0.8,0.999)] * 14) + ([AverageHunter()] * 3) + ([Pushover()] * 1) 
 
 # Bare minimum test game. See README.md for details.
 
