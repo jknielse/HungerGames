@@ -47,7 +47,7 @@ class Player(BasePlayer):
                     player_reputations,
                     ):
         threshold = current_reputation
-        return ['h' if ((rep >= threshold) and (abs(rep - 0.5) > 0.01))  else 's' for rep in player_reputations]
+        return ['h' if ((rep >= threshold) and (abs(rep - 0.5) > 0.01) and (rep != 1.0))  else 's' for rep in player_reputations]
         
 
     def hunt_outcomes(self, food_earnings):
