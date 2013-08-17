@@ -1,7 +1,7 @@
 from Player import BasePlayer
 import random
 
-class Pushover(BasePlayer):
+class Pushover(BasePlayer): #0
     '''Player that always hunts.'''
     def __init__(self):
         self.name = "Pushover"
@@ -17,7 +17,7 @@ class Pushover(BasePlayer):
         return ['h']*len(player_reputations)
 
         
-class Freeloader(BasePlayer):
+class Freeloader(BasePlayer): #20
     '''Player that always slacks.'''
     
     def __init__(self):
@@ -34,7 +34,7 @@ class Freeloader(BasePlayer):
         return ['s']*len(player_reputations)
         
 
-class Alternator(BasePlayer):
+class Alternator(BasePlayer): #1
     '''Player that alternates between hunting and slacking.'''
     def __init__(self):
         self.name = "Alternator"
@@ -55,7 +55,7 @@ class Alternator(BasePlayer):
 
         return hunt_decisions
 
-class MaxRepHunter(BasePlayer):
+class MaxRepHunter(BasePlayer): #20
     '''Player that hunts only with people with max reputation.'''
     def __init__(self):
         self.name = "MaxRepHunter"
@@ -72,7 +72,7 @@ class MaxRepHunter(BasePlayer):
         return ['h' if rep == threshold else 's' for rep in player_reputations]
 
 
-class Random(BasePlayer):
+class Random(BasePlayer):#4
     '''
     Player that hunts with probability p_hunt and
     slacks with probability 1-p_hunt
@@ -93,7 +93,7 @@ class Random(BasePlayer):
                     ):
         return ['h' if random.random() < self.p_hunt else 's' for p in player_reputations]
 
-class FairHunter(BasePlayer):
+class FairHunter(BasePlayer):#2
     '''Player that tries to be fair by hunting with same probability as each opponent'''
     def __init__(self):
         self.name = "FairHunter"
@@ -108,7 +108,7 @@ class FairHunter(BasePlayer):
                 ):
         return ['h' if random.random() < rep else 's' for rep in player_reputations]
         
-class BoundedHunter(BasePlayer):
+class BoundedHunter(BasePlayer):#14
     '''Player that hunts whenever the other's reputation is within some range.'''
     def __init__(self,lower,upper):
         self.name = "BoundedHunter" + str(lower)+'-'+str(upper)
@@ -125,7 +125,7 @@ class BoundedHunter(BasePlayer):
                     ):
         return ['h' if self.low <= rep <= self.up else 's' for rep in player_reputations]
         
-class AverageHunter(BasePlayer):
+class AverageHunter(BasePlayer):#3
     '''Player that tries to maintain the average reputation, but spreads its hunts randomly.'''
     
     def __init__(self):
