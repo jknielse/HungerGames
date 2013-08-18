@@ -76,13 +76,6 @@ class Game(object):
         
         self.players = [GamePlayer(self,p,start_food) for p in players]
 
-        if self.verbose:
-            print("Game parameters:\n # players: %d\n verbose: %s\n " \
-                  "min_rounds: %d\n average_rounds: %d\n " \
-                  "end_early: %s\n" % (len(players), verbose, \
-                                       min_rounds, average_rounds,
-                                       end_early))
-
     @property
     def m_bonus(self):
         return 2*(self.P-1)
@@ -98,8 +91,6 @@ class Game(object):
     def play_round(self):
         # Get beginning of round stats        
         self.round += 1
-        if(self.verbose):
-            print ("\nBegin Round " + str(self.round) + ":")
         m = self.calculate_m()
         
         # Beginning of round setup
@@ -126,13 +117,9 @@ class Game(object):
                 
         total_hunts = sum(s.count('h') for s in strategies)
         
-        if (self.verbose):
-            print ("There were {} hunts of {} needed for bonus".format(total_hunts, m))
 
         if total_hunts >= m:
             bonus = self.m_bonus
-            if (self.verbose):
-                print("Cooperation Threshold Acheived. Bonus of {} awarded to each player".format(self.m_bonus))
         else:
             bonus = 0
         
@@ -149,12 +136,9 @@ class Game(object):
     
         if self.verbose:
             newlist = sorted(self.players, key=lambda x: x.food, reverse=True)
-            for p in newlist:
-                print (p)
                    
         
         if self.game_over():
-            print ("Game Completed after {} rounds".format(self.round))
             raise StopIteration
             
         
@@ -163,7 +147,6 @@ class Game(object):
         quit = False
 
         for p in starved:
-            print ("{} has starved and been eliminated in round {}".format(p.player, self.round))
 
             if isinstance(p.player, Player) and self.end_early:
                 quit = True
@@ -178,7 +161,6 @@ class Game(object):
         Preferred way to run the game to completion
         Written this way so that I can step through rounds one at a time
         '''
-        print ("Playing the game to the end:")
 
         while True:
             try:
@@ -187,11 +169,9 @@ class Game(object):
                 if len(self.players) <= 0:
                     print ("Everyone starved")
                 elif (len(self.players) == 1):
-                    print ("The winner is: ", self.players[0].player)
+                    return str(self.players[0].player)
                 else:
                     survivors = sorted(self.players, key=lambda player: player.food, reverse=True)
-                    print ("The winner is: ", survivors[0].player)
-                    print ("Multiple survivors:")
-                    print (survivors)
+                    return str(survivors[0].player)
                 break
         

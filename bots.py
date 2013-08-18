@@ -157,5 +157,66 @@ class Player1(BasePlayer):#3
                     player_reputations,
                     ):
         threshold = current_reputation
-        return ['h' if ((rep >= threshold) and (abs(rep - 0.5) > 0.01))  else 's' for rep in player_reputations]
+        return ['h' if ((rep >= threshold) and (abs(rep - 0.5) > 0.01) and (rep != 1.0)) else 's' for rep in player_reputations]
+
+class Player2(BasePlayer):#3
+    '''Player that tries to maintain the average reputation, but spreads its hunts randomly.'''
+    
+    def __init__(self):
+        self.name = "player2"
+
+    def hunt_choices(
+                    self,
+                    round_number,
+                    current_food,
+                    current_reputation,
+                    m,
+                    player_reputations,
+                    ):
+        return ['h' if (rep == current_reputation) else 's' for rep in player_reputations]
+
+class Player3(BasePlayer):#3
+    '''Player that tries to maintain the average reputation, but spreads its hunts randomly.'''
+    
+    def __init__(self, forgivingness):
+        self.name = "Forgiving " + str(forgivingness)
+        self.forgive = forgivingness
+
+    def hunt_choices(
+                    self,
+                    round_number,
+                    current_food,
+                    current_reputation,
+                    m,
+                    player_reputations,
+                    ):
+        return ['h' if ((rep >= current_reputation - self.forgive) and (abs(rep - 0.5) > 0.01) and (rep != 1.0))  else 's' for rep in player_reputations]
+
+class Player4(BasePlayer):
+    '''Player that hunts only with people with max reputation.'''
+    def __init__(self, lower, upper):
+        self.name = "RelativeRangeHunter (" + str(lower) + ", " + str(upper) + ")"
+        self.lower = lower
+        self.upper = upper
+
+    def hunt_choices(
+                    self,
+                    round_number,
+                    current_food,
+                    current_reputation,
+                    m,
+                    player_reputations,
+                    ):
+        return ['h' if (abs(rep - current_reputation) < self.upper) and (rep >= current_reputation - self.lower) and (rep != 1.0) else 's' for rep in player_reputations]
+        
+
+    def hunt_outcomes(self, food_earnings):
+        '''Required function defined in the rules'''
+        pass
+        
+
+    def round_end(self, award, m, number_hunters):
+        '''Required function defined in the rules'''
+        pass
+
         

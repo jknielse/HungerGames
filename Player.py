@@ -34,9 +34,11 @@ class BasePlayer(object):
 
 
 class Player(BasePlayer):
-    '''Player that hunts only with people with max reputation.'''
+    
     def __init__(self):
         self.name = "Player"
+        self.lower = 0.05
+        self.upper = 0.1
 
     def hunt_choices(
                     self,
@@ -46,8 +48,10 @@ class Player(BasePlayer):
                     m,
                     player_reputations,
                     ):
-        threshold = current_reputation
-        return ['h' if ((rep >= threshold) and (abs(rep - 0.5) > 0.01) and (rep != 1.0))  else 's' for rep in player_reputations]
+        # Behaviour:
+        # If the reputation of the other player is within a certain range above (self.upper) or a certain range below (self.lower), 
+        # and their repution is *not* 100%, then we will hunt with them.
+        return ['h' if (abs(rep - current_reputation) < self.upper) and (rep >= current_reputation - self.lower) and (rep != 1.0) else 's' for rep in player_reputations]
         
 
     def hunt_outcomes(self, food_earnings):
